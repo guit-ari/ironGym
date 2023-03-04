@@ -59,7 +59,6 @@ export default function DettagliScheda() {
             <th>Categoria</th>
             <th>Gruppo muscolare</th>
             <th>Difficoltà</th>
-            <th>Equipaggiamento</th>
             <th>Sets</th>
             <th>Ripetizioni</th>
             <th>Peso</th>
@@ -83,7 +82,6 @@ export default function DettagliScheda() {
               <td>{value.workouts.categorie.descrizione}</td>
               <td>{value.workouts.gruppoMuscolare.gruppoMuscolare}</td>
               <td>{value.workouts.difficoltà}/5</td>
-              <td>{value.workouts.equipments.nomeEquipaggiamento}</td>
               <td>{value.sets}</td>
               <td>{value.ripetizioni}</td>
               <td>{value.peso}kg</td>
