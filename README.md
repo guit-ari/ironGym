@@ -6,7 +6,7 @@ if (!pain)
 }
 ```
 
-Full presentation: [Uploading Iron Gym presentation.pdf…]()
+Full presentation:[Iron Gym presentation.pdf](https://github.com/guit-ari/ironGym/files/10891663/Iron.Gym.presentation.pdf)
 
 ![iron Gym (3)](https://user-images.githubusercontent.com/113235547/222957130-4da43a07-cce4-4da1-be10-e61a5cac240d.jpg)
 ![iron Gym (4)](https://user-images.githubusercontent.com/113235547/222957133-4487995d-0c04-471b-9bc8-dfb03a479310.jpg)
