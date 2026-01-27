@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { Form, Button, Container, Modal } from "react-bootstrap";
+import Header from "./Header";
 export default function Contatti() {
  
 
@@ -40,10 +41,7 @@ export default function Contatti() {
         <Modal.Body>
           Ti risponderemo al più presto, grazie!
         </Modal.Body>
-        <Modal.Footer>
-     
-         
-        </Modal.Footer>
+        <Header/>
       </Modal>
     </div>
   );

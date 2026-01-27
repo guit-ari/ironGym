@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Col,
@@ -7,169 +6,144 @@ import {
   Button,
   Form,
   Modal,
-  Stack,
   Container,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import WorkoutService from "../services/workoutService";
 
 export default function Schede() {
   const [schede, setSchede] = useState([]);
   const [nome, setNome] = useState("");
-  const [show, setShow] = useState(false);
   const [descrizione, setDescrizione] = useState("");
+  const [show, setShow] = useState(false);
+
+  const fetchSchede = async () => {
+    const data = await WorkoutService.getAllSchede();
+    setSchede(data);
+  };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/workoutLogs/getAll")
-      .then((resp) => resp.json())
-      .then((data) => {
-        setSchede(data);
-      });
-  });
+    fetchSchede();
+  }, []);
 
-  const handleEliminaClick = (id) => {
-    // Invio della richiesta al backend per eliminare la scheda
-    console.log(id);
-    fetch("http://localhost:8080/api/workoutLogs/delete/" + id, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (response.ok) {
-          // Chiamata alla funzione onSchedaEliminata per notificare il componente padre
-          return response.json();
-        } else {
-          throw new Error(
-            "Errore durante l'eliminazione della scheda di allenamento"
-          );
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const handleEliminaClick = async (id) => {
+    if (window.confirm("Sei sicura di voler eliminare questa scheda?")) {
+      await WorkoutService.deleteScheda(id);
+      fetchSchede();
+    }
   };
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
-    const nuovaScheda = { nome: nome, descrizione: descrizione };
-    fetch("http://localhost:8080/api/workoutLogs/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuovaScheda),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-          // TODO: aggiornare la lista delle schede
-        } else {
-          console.error("Errore durante la creazione della scheda");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    if (!nome.trim()) return;
 
-    // Chiudere la finestra modale
+    const nuovaScheda = { nome, descrizione };
+    await WorkoutService.createScheda(nuovaScheda);
+    setNome("");
+    setDescrizione("");
     setShow(false);
-  };
-  const handleDettagliClick = (id) => {
-    fetch("http://localhost:8080/api/workoutLogs/workoutLogs/" + id)
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
+    fetchSchede();
   };
 
   return (
-    <>
-      <Container className="text-center my-4" style={{ fontSize: 25 }}>
-        Non importa quale sia il tuo livello di fitness <br />
-        troverai l'ispirazione e il supporto di cui hai bisogno per raggiungere
-        i tuoi obiettivi nella nostra applicazione. <br />
-        Se già sei allenato prova una di queste schede, oppure creane una fatta
-        su misura per te.
-      </Container>
+    <Container className="my-5">
 
-      <Modal show={show} onHide={() => setShow(false)}>
+      {/* HERO / INTRO */}
+      <div className="text-center mb-5">
+        <h2 className="fw-bold mb-3">Le tue schede di allenamento</h2>
+        <p className="fs-5 text-muted">
+          Trova ispirazione tra le schede già pronte o crea la tua scheda personalizzata.
+          Allenati con facilità e rimani motivata!
+        </p>
+        <Button
+          variant="danger"
+          onClick={() => setShow(true)}
+          className="mt-3 px-4"
+        >
+          Crea la tua scheda
+        </Button>
+      </div>
+
+      {/* MODALE CREAZIONE */}
+      <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Crea una nuova scheda </Modal.Title>
+          <Modal.Title>Crea una nuova scheda</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleClick}>
-            <Form.Group controlId="formNome">
+            <Form.Group controlId="formNome" className="mb-3">
               <Form.Label>Nome</Form.Label>
               <Form.Control
                 type="text"
                 value={nome}
-                onChange={(event) => setNome(event.target.value)}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="Inserisci il nome della scheda"
+                required
               />
             </Form.Group>
-            <Form.Group controlId="formDescrizione">
+            <Form.Group controlId="formDescrizione" className="mb-3">
               <Form.Label>Descrizione</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
                 value={descrizione}
-                onChange={(event) => setDescrizione(event.target.value)}
+                onChange={(e) => setDescrizione(e.target.value)}
+                placeholder="Scrivi una breve descrizione"
               />
             </Form.Group>
-            <Button type="submit" variant="outline-danger" size="sm">
+            <Button type="submit" variant="danger" className="w-100">
               Crea scheda
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-      <Row>
-        <Col
-          className="mt-4 mx-auto justify-content-center"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: "10px",
-            textAlign: "center",
-          }}
-        >
-          {schede.map((value, workoutLogId) => {
-            return (
-              <Card style={{ width: "18rem" }} key={workoutLogId}>
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>{value.nome}</Card.Title>
-                  <Card.Text>{value.descrizione}</Card.Text>
-                  <Stack gap={2} className="col mx-auto">
-                    <Link
-                      className="mt-auto "
-                      style={{ textDecoration: "none", color: "inherit" }}
-                      to={`/dettaglischeda/?workoutLogId=${value.workoutLogId}`}
-                    >
-                      <Button
-                        variant="dark"
-                        className="mt-auto "
-                        onClick={() => handleDettagliClick(value.workoutLogId)}
-                      >
-                        VAI AL PROGRAMMA
-                      </Button>
-                    </Link>
+
+      {/* LISTA SCHEDE */}
+      <Row className="g-4">
+        {schede.length === 0 && (
+          <p className="text-center text-muted fs-5">Nessuna scheda disponibile.</p>
+        )}
+        {schede.map((scheda) => (
+          <Col
+            key={scheda.workoutLogId}
+            xs={12}
+            sm={6}
+            md={4}
+            lg={3}
+            className="d-flex"
+          >
+            <Card className="w-100 shadow-sm border-0 d-flex flex-column hover-shadow">
+              <Card.Body className="d-flex flex-column">
+                <Card.Title className="fw-bold">{scheda.nome}</Card.Title>
+                <Card.Text className="flex-grow-1 text-muted">
+                  {scheda.descrizione || "Nessuna descrizione"}
+                </Card.Text>
+                <div className="mt-auto d-flex gap-2">
+                  <Link
+                    to={`/dettaglischeda/?workoutLogId=${scheda.workoutLogId}`}
+                    className="flex-grow-1 text-decoration-none"
+                  >
                     <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={() => handleEliminaClick(value.workoutLogId)}
+                      variant="dark"
+                      onClick={() => console.log(scheda.workoutLogId)}
+                      className="w-100"
                     >
-                      Elimina
+                      VAI AL PROGRAMMA
                     </Button>
-                  </Stack>
-                </Card.Body>
-              </Card>
-            );
-          })}
-        </Col>
+                  </Link>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => handleEliminaClick(scheda.workoutLogId)}
+                  >
+                    Elimina
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
-      <div className="d-flex justify-content-center">
-        <Button
-          variant="outline-danger"
-          onClick={() => setShow(true)}
-          className="p-2 mt-4"
-        >
-          Crea la tua scheda di allenamento
-        </Button>
-      </div>
-    </>
+    </Container>
   );
 }

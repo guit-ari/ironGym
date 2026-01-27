@@ -1,6 +1,4 @@
-import React from "react";
-
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -8,63 +6,56 @@ export default function CardCategorie() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/workoutCategory/getAll")
-      .then((resp) => resp.json())
-      .then((data) => {
+    const fetchCategories = async () => {
+      try {
+        const resp = await fetch("http://localhost:8080/api/workoutCategory/getAll");
+        const data = await resp.json();
         setCategories(data);
-      });
-  });
+      } catch (err) {
+        console.error("Errore nel recupero delle categorie", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  const handleDettagliClick = (id) => {
-    fetch("http://localhost:8080/api/workout/category/" + id)
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
-  };
   return (
-    <Row className=" justify-content-center">
+    <Row className="justify-content-center">
       <Col
         style={{
           display: "flex",
-          flexDirection: "row",
           flexWrap: "wrap",
-          gap: "10px",
+          gap: "20px",
+          justifyContent: "center",
         }}
       >
-        {categories.map((value, categoryId) => {
-          return (
-            <Card
-              className="mx-auto justify-content-center"
-              style={{ width: "18rem" }}
-              key={categoryId}
+        {categories.map((value, index) => (
+          <Card
+            key={index}
+            className="shadow-sm mx-auto text-center"
+            style={{ width: "18rem", cursor: "pointer", transition: "transform 0.2s" }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
+            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+            <Link
+              to={`/dettaglicategoria/?categoryId=${value.categoryId}`}
+              style={{ textDecoration: "none", color: "inherit" }}
             >
-              <Link
-                className="mt-auto"
-                style={{ textDecoration: "none", color: "inherit" }}
-                to={`/dettaglicategoria/?categoryId=${value.categoryId}`}
-              >
-                <Button
-                  variant="outline-light"
-                  onClick={() => handleDettagliClick(value.categoryId)}
-                >
-                  <Card.Img
-                    variant="top"
-                    src={
-                      "../src/images/allImages/" +
-                      value.descrizione.toLowerCase() +
-                      ".png"
-                    }
-                  />
-                </Button>
-              </Link>
+              <Card.Img
+                variant="top"
+                src={`../src/images/allImages/${value.descrizione.toLowerCase()}.png`}
+                style={{ height: "180px", objectFit: "cover" }}
+              />
               <Card.Body>
-                <Card.Title className="text-center text-danger">
-                  Esercizi {value.descrizione}
+                <Card.Title className="text-danger fw-bold">
+                  {value.descrizione}
                 </Card.Title>
+                <Button variant="outline-danger" className="mt-2">
+                  Visualizza
+                </Button>
               </Card.Body>
-            </Card>
-          );
-        })}
+            </Link>
+          </Card>
+        ))}
       </Col>
     </Row>
   );

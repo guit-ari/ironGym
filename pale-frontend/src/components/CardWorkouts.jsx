@@ -2,163 +2,103 @@ import React, { useEffect, useState } from "react";
 import {
   Card,
   Col,
-  ListGroup,
   Row,
   Button,
   Modal,
-  Form,
+  Container,
+  Stack,
 } from "react-bootstrap";
+import WorkoutService from "../services/workoutService";
 
-export default function CardWorkouts(workout) {
+export default function CardWorkouts() {
   const [workouts, setWorkouts] = useState([]);
   const [schede, setSchede] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
   const [selectedWorkoutId, setSelectedWorkoutId] = useState(null);
 
-  useEffect(() => {
-    fetch("http://localhost:8080/api/workout/getAll")
-      .then((resp) => resp.json())
-      .then((data) => {
-        setWorkouts(data);
-      });
-  });
-
-  const handleAddToCard = (logId, workoutId) => {
-    setShowModal(true);
-    fetch(`http://localhost:8080/api/workoutLogDetails/${logId}/workouts/${workoutId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ logId, workoutId }),
-    })
-      .then((response) => {
-        if (response.ok) {
-    
-          setShowModal(false);
-
-          console.log("Workout aggiunto con successo al workout log.");
-        } else {
-          console.error(
-            "Errore durante l'aggiunta del workout al workout log."
-          );
-        }
-      })
-      .catch((error) => {
-        console.error(
-          "Si è verificato un errore durante la richiesta di aggiunta del workout al workout log.",
-          error
-        );
-      });
+  // Carica tutti i workout
+  const fetchWorkouts = async () => {
+    const data = await WorkoutService.getAllWorkouts();
+    setWorkouts(data);
   };
 
-  const handleSchede = (workoutId) => {
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
+  const handleSchede = async (workoutId) => {
     setSelectedWorkoutId(workoutId);
-    fetch("http://localhost:8080/api/workoutLogs/getAll")
-      .then((resp) => resp.json())
-      .then((data) => setSchede(data));
+    const schedeData = await WorkoutService.getAllSchede();
+    setSchede(schedeData);
     setShowModal(true);
+  };
+
+  const handleAddToCard = async (logId) => {
+    await WorkoutService.addWorkoutToScheda(logId, selectedWorkoutId);
+    setShowModal(false);
+    alert("Workout aggiunto con successo!");
   };
 
   return (
-    <>
-      <Card
-        style={{
-          fontSize: 24,
-          textAlign: "center",
-          marginTop: 30,
-          border: "none",
-        }}
-      >
-        Esplora la nostra vasta libreria di workout e aggiungi quelli che
-        preferisci alla tua scheda di allenamento personalizzata. Con la nostra
-        piattaforma online, hai accesso a tutti i nostri workout, dai programmi
-        di sollevamento pesi ai circuiti cardiovascolari e molto altro ancora.
-      </Card>
+    <Container className="my-5">
+      <h2 className="text-center fw-bold mb-4">Esplora i nostri workout</h2>
+      <p className="text-center text-muted fs-5 mb-5">
+        Aggiungi i workout che preferisci alla tua scheda di allenamento
+        personalizzata. Dai sollevamenti pesi ai circuiti cardio, c'è tutto!
+      </p>
 
-      <Row>
-        <Col
-          className="mt-4"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: "10px",
-            padding: "30px",
-          }}
-        >
-          {workouts.map((value) => {
-            return (
-              <Card style={{ width: "18rem" }} key={value.workoutId}>
-                <Card.Img
-                  variant="top"
-                  src={
-                    "../src/images/allImages/" +
-                    value.nome.toLowerCase() +
-                    ".png"
-                  }
-                />
-                <Card.Body>
-                  <Card.Title>{value.nome.toUpperCase()}</Card.Title>
-                  <Card.Text>
-                    Categoria: {value.categorie.descrizione}
-                  </Card.Text>
-                </Card.Body>
-                <ListGroup className="list-group-flush">
-                  <ListGroup.Item>
-                    Difficoltà: {value.difficoltà}
-                  </ListGroup.Item>
-                 
-                  <ListGroup.Item>
-                    Gruppo muscolare: {value.gruppoMuscolare.gruppoMuscolare}
-                  </ListGroup.Item>
-                </ListGroup>
-
+      <Row className="g-4">
+        {workouts.map((w) => (
+          <Col key={w.workoutId} xs={12} sm={6} md={4} lg={3} className="d-flex">
+            <Card className="w-100 shadow-sm border-0 d-flex flex-column hover-shadow">
+              <Card.Img
+                variant="top"
+                src={`../src/images/allImages/${w.nome.toLowerCase()}.png`}
+              />
+              <Card.Body className="d-flex flex-column">
+                <Card.Title className="fw-bold">{w.nome.toUpperCase()}</Card.Title>
+                <Card.Text className="text-muted flex-grow-1">
+                  Categoria: {w.categorie.descrizione}
+                </Card.Text>
+                <ul className="list-unstyled mb-3">
+                  <li>Difficoltà: {w.difficoltà}</li>
+                  <li>Gruppo muscolare: {w.gruppoMuscolare.gruppoMuscolare}</li>
+                </ul>
                 <Button
-                  variant="outline-danger"
-                  className="mt-auto "
-                  onClick={() => handleSchede(value.workoutId)}
+                  variant="danger"
+                  onClick={() => handleSchede(w.workoutId)}
+                  className="mt-auto"
                 >
-                   Aggiungi alla scheda
-
+                  Aggiungi alla scheda
                 </Button>
-                <Modal show={showModal} onHide={() => setShowModal(false)}>
-                  <Modal.Header closeButton>
-                    <Modal.Title>Seleziona una scheda</Modal.Title>
-                  </Modal.Header>
-             
-
-                  <Modal.Body>
-                    <ul>
-                      {schede.map((scheda) => (
-                        <li key={scheda.workoutLogId}>
-                          <Button
-                            variant="light"
-                            onClick={() =>
-                              handleAddToCard(
-                                scheda.workoutLogId,
-                                selectedWorkoutId
-                              )
-                            }
-                          >
-                            {scheda.nome}
-                        
-                          </Button>
-                        </li>
-
-                      ))}
-                    </ul>
-                   
-                  </Modal.Body>
-                  
-                </Modal>
-                
-              </Card>
-            );
-          })}
-        </Col>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
-    </>
+
+      {/* MODALE SELEZIONE SCHEDE */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Seleziona una scheda</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {schede.length === 0 && (
+            <p className="text-center text-muted">Non ci sono schede disponibili.</p>
+          )}
+          <Stack gap={2}>
+            {schede.map((s) => (
+              <Button
+                key={s.workoutLogId}
+                variant="outline-dark"
+                onClick={() => handleAddToCard(s.workoutLogId)}
+              >
+                {s.nome}
+              </Button>
+            ))}
+          </Stack>
+        </Modal.Body>
+      </Modal>
+    </Container>
   );
 }
