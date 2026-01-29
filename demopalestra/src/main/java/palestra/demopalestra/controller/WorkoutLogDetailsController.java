@@ -1,6 +1,8 @@
 package palestra.demopalestra.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -53,11 +55,12 @@ public class WorkoutLogDetailsController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteWorkoutLogDetailsById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteWorkoutLogDetailsById(@PathVariable Long id) {
         workoutLogDetailsService.deleteWorkoutLogDetailsById(id);
-        return new ResponseEntity<>("WorkoutLogDetails cancellato con successo", HttpStatus.OK);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Scheda eliminata con successo");
+        return ResponseEntity.ok(response);
     }
-
     @PutMapping("/update/{id}")
     public ResponseEntity<WorkoutLogDetails> updateWorkoutLogDetails(@PathVariable Long id,
             @RequestBody WorkoutLogDetails newWorkoutLogDetails) {
@@ -69,11 +72,19 @@ public class WorkoutLogDetailsController {
         return workoutLogDetailsService.getDetailsByLogId(logId);
     }
 //aggiunge workout alla scheda
-    @PostMapping("/{workoutLogId}/workouts/{workoutId}")
+@PostMapping("/{workoutLogId}/workouts/{workoutId}")
+public ResponseEntity<Map<String, String>> addWorkoutToLog(
+        @PathVariable Long workoutLogId,
+        @PathVariable Long workoutId) {
 
-    public void addWorkoutToLog(@PathVariable Long workoutLogId, @PathVariable Long workoutId) {
-        workoutLogDetailsService.addWorkoutToLog(workoutId, workoutLogId);
-    }
+    workoutLogDetailsService.addWorkoutToLog(workoutId, workoutLogId);
+
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "Workout aggiunto con successo");
+    return ResponseEntity.ok(response);
+}
+
+
     
 
 }

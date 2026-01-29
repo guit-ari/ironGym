@@ -1,7 +1,8 @@
 import React from "react";
 import Carousel from "react-bootstrap/Carousel";
-import { Row, Container, Card, } from "react-bootstrap";
+import { Row, Container, Card, Badge } from "react-bootstrap";
 import CardCategorie from "./CardCategorie";
+import { FaDumbbell, FaStopwatch, FaStar } from "react-icons/fa";
 
 export default function Home() {
   const slides = [
@@ -24,14 +25,14 @@ export default function Home() {
 
   return (
     <div>
-      {/* HERO */}
-      <Container className="my-5">
-        <Carousel fade className="rounded shadow-lg overflow-hidden">
+      {/* HERO / CAROUSEL */}
+      <Container fluid className="p-0">
+        <Carousel fade>
           {slides.map((s, i) => (
             <Carousel.Item
               key={i}
-              interval={3000}
-              style={{ height: "55vh", minHeight: "380px" }}
+              interval={3500}
+              style={{ height: "60vh", minHeight: "400px" }}
             >
               <img
                 className="d-block w-100 h-100"
@@ -39,40 +40,56 @@ export default function Home() {
                 alt={s.title}
                 style={{ objectFit: "cover" }}
               />
-
-              {/* Overlay */}
-              <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50" />
-
-              <Carousel.Caption className="mb-4">
-                <h1 className="fw-bold display-5">{s.title}</h1>
-                <p className="lead">{s.text}</p>
+              {/* Overlay leggero per contrasto */}
+              <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" />
+              <Carousel.Caption className="text-start text-white">
+                <h1 className="fw-bold display-4">{s.title}</h1>
+                <p className="lead fs-5">{s.text}</p>
+                <div className="mt-3">
+                  <Badge bg="danger" className="me-2 py-2 px-3 fs-6">
+                    Novità
+                  </Badge>
+                  <Badge bg="warning" text="dark" className="py-2 px-3 fs-6">
+                    Consigliato
+                  </Badge>
+                </div>
               </Carousel.Caption>
             </Carousel.Item>
           ))}
         </Carousel>
       </Container>
 
-      {/* PRESENTAZIONE */}
+      {/* PRESENTAZIONE / FEATURE */}
       <Container className="my-5">
-        <Card className="text-center border-0">
-          <Card.Body>
-            <Card.Text className="fs-4">
-              IronGym è il software per l'allenamento che mette a disposizione
-              tutti gli strumenti di cui hai bisogno.
-              <br />
-              Grafica moderna, semplicità d’uso e massima efficacia.
-            </Card.Text>
-          </Card.Body>
-        </Card>
-
-        <Card className="text-center bg-dark text-white mt-4">
-          <Card.Body>
-            <Card.Text className="fs-5">
-              CENTINAIA DI ESERCIZI IN GRAFICA 3D
-              <span className="text-danger fw-bold"> A TUA DISPOSIZIONE</span>
-            </Card.Text>
-          </Card.Body>
-        </Card>
+        <Row className="g-4 justify-content-center">
+          <Card className="col-md-5 text-center shadow-lg border-0 rounded-4 p-4">
+            <FaDumbbell size={50} className="text-danger mb-3" />
+            <Card.Body>
+              <Card.Title className="fw-bold fs-4">Allenamento completo</Card.Title>
+              <Card.Text className="text-muted">
+                Tutti gli strumenti per creare routine efficaci e personalizzate.
+              </Card.Text>
+            </Card.Body>
+          </Card>
+          <Card className="col-md-5 text-center shadow-lg border-0 rounded-4 p-4 bg-dark text-white">
+            <FaStopwatch size={50} className="text-warning mb-3" />
+            <Card.Body>
+              <Card.Title className="fw-bold fs-4">Esercizi in 3D</Card.Title>
+              <Card.Text>
+                Guarda ogni movimento con chiarezza e precisione grazie alla grafica 3D.
+              </Card.Text>
+            </Card.Body>
+          </Card>
+          <Card className="col-md-5 text-center shadow-lg border-0 rounded-4 p-4">
+            <FaStar size={50} className="text-success mb-3" />
+            <Card.Body>
+              <Card.Title className="fw-bold fs-4">Motivazione costante</Card.Title>
+              <Card.Text className="text-muted">
+                Segui progressi, sfide e obiettivi per migliorare ogni giorno.
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Row>
       </Container>
 
       {/* CATEGORIE */}

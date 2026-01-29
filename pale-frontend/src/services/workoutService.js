@@ -1,6 +1,7 @@
-const BASE_URL_SCHEDE = "http://localhost:8080/api/workoutLogs";
-const BASE_URL_WORKOUT = "http://localhost:8080/api/workout";
-const BASE_URL = "http://localhost:8080/api/workoutLogDetails";
+const BASE_URL_SCHEDE = "/api/workoutLogs";
+const BASE_URL_WORKOUT = "/api/workout";
+const BASE_URL = "/api/workoutLogDetails";
+
 
 const WorkoutService = {
   // Schede
@@ -45,7 +46,8 @@ const WorkoutService = {
     try {
       const resp = await fetch(`${BASE_URL_SCHEDE}/delete/${id}`, { method: "DELETE" });
       if (!resp.ok) throw new Error("Errore durante l'eliminazione");
-      return await resp.json();
+      const result = await resp.json(); 
+      return result.message;
     } catch (err) {
       console.error(err);
       return null;
@@ -67,11 +69,10 @@ const WorkoutService = {
   addWorkoutToScheda: async (logId, workoutId) => {
     try {
       const resp = await fetch(
-        `${BASE_URL_SCHEDE}/workoutLogDetails/${logId}/workouts/${workoutId}`,
+        `/api/workoutLogDetails/${logId}/workouts/${workoutId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ logId, workoutId }),
         }
       );
       if (!resp.ok) throw new Error("Errore nell'aggiunta del workout");

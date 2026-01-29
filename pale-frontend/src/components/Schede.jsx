@@ -10,12 +10,14 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import WorkoutService from "../services/workoutService";
-
+import ToastMessage from "./ToastMessage";
 export default function Schede() {
   const [schede, setSchede] = useState([]);
   const [nome, setNome] = useState("");
   const [descrizione, setDescrizione] = useState("");
   const [show, setShow] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
 
   const fetchSchede = async () => {
     const data = await WorkoutService.getAllSchede();
@@ -27,9 +29,14 @@ export default function Schede() {
   }, []);
 
   const handleEliminaClick = async (id) => {
-    if (window.confirm("Sei sicura di voler eliminare questa scheda?")) {
+    try {
       await WorkoutService.deleteScheda(id);
       fetchSchede();
+      setToastVariant("success");
+      setToastMessage("Scheda eliminata con successo!");
+    } catch (error) {
+      setToastVariant("danger");
+      setToastMessage("Errore durante l'eliminazione della scheda");
     }
   };
 
@@ -47,21 +54,22 @@ export default function Schede() {
 
   return (
     <Container className="my-5">
-
       {/* HERO / INTRO */}
       <div className="text-center mb-5">
         <h2 className="fw-bold mb-3">Le tue schede di allenamento</h2>
         <p className="fs-5 text-muted">
-          Trova ispirazione tra le schede già pronte o crea la tua scheda personalizzata.
-          Allenati con facilità e rimani motivata!
+          Trova ispirazione tra le schede già pronte o crea la tua scheda
+          personalizzata. Allenati con facilità e rimani motivata!
         </p>
-        <Button
-          variant="danger"
-          onClick={() => setShow(true)}
-          className="mt-3 px-4"
-        >
-          Crea la tua scheda
-        </Button>
+        <div className="d-flex justify-content-center gap-3 mt-3">
+          <Button
+            variant="danger"
+            onClick={() => setShow(true)}
+            className="px-4"
+          >
+            Crea la tua scheda
+          </Button>
+        </div>
       </div>
 
       {/* MODALE CREAZIONE */}
@@ -101,7 +109,9 @@ export default function Schede() {
       {/* LISTA SCHEDE */}
       <Row className="g-4">
         {schede.length === 0 && (
-          <p className="text-center text-muted fs-5">Nessuna scheda disponibile.</p>
+          <p className="text-center text-muted fs-5">
+            Nessuna scheda disponibile.
+          </p>
         )}
         {schede.map((scheda) => (
           <Col
@@ -114,7 +124,16 @@ export default function Schede() {
           >
             <Card className="w-100 shadow-sm border-0 d-flex flex-column hover-shadow">
               <Card.Body className="d-flex flex-column">
-                <Card.Title className="fw-bold">{scheda.nome}</Card.Title>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Card.Title className="fw-bold mb-0">
+                    {scheda.nome}
+                  </Card.Title>
+                  <Link to={`/esercizi?schedaId=${scheda.workoutLogId}`}>
+                    <Button variant="outline-secondary" size="sm">
+                      +
+                    </Button>
+                  </Link>
+                </div>
                 <Card.Text className="flex-grow-1 text-muted">
                   {scheda.descrizione || "Nessuna descrizione"}
                 </Card.Text>
@@ -123,11 +142,7 @@ export default function Schede() {
                     to={`/dettaglischeda/?workoutLogId=${scheda.workoutLogId}`}
                     className="flex-grow-1 text-decoration-none"
                   >
-                    <Button
-                      variant="dark"
-                      onClick={() => console.log(scheda.workoutLogId)}
-                      className="w-100"
-                    >
+                    <Button variant="dark" className="w-100">
                       VAI AL PROGRAMMA
                     </Button>
                   </Link>

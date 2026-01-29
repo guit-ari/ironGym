@@ -1,6 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Card, Col, Row, Button, Modal, Container, Badge, Form } from "react-bootstrap";
+import {
+  Card,
+  Col,
+  Row,
+  Button,
+  Modal,
+  Container,
+  Badge,
+} from "react-bootstrap";
+import {
+  FaDumbbell,
+  FaRedo,
+  FaClock,
+  FaWeightHanging,
+  FaTimes,
+} from "react-icons/fa";
 import WorkoutService from "../services/workoutService";
+
 export default function DettagliScheda() {
   const [dettagliSchede, setDettagliSchede] = useState([]);
   const [filteredSchede, setFilteredSchede] = useState([]);
@@ -24,7 +40,7 @@ export default function DettagliScheda() {
     fetchDettagli();
   }, []);
 
-  // Filtra le schede ogni volta che cambia un filtro
+  // Filtri
   useEffect(() => {
     let filtered = [...dettagliSchede];
     if (filterCategoria) {
@@ -61,88 +77,177 @@ export default function DettagliScheda() {
   };
 
   const handleClose = () => setShowModal(false);
-
   const handlePrint = () => window.print();
 
-  // Genera liste uniche per i filtri
-  const categorie = [...new Set(dettagliSchede.map((item) => item.workouts.categorie.descrizione))];
-  const gruppi = [...new Set(dettagliSchede.map((item) => item.workouts.gruppoMuscolare.gruppoMuscolare))];
-  const difficolta = [...new Set(dettagliSchede.map((item) => item.workouts.difficoltà.toString()))];
+  const categorie = [
+    ...new Set(
+      dettagliSchede.map((item) => item.workouts.categorie.descrizione)
+    ),
+  ];
+  const gruppi = [
+    ...new Set(
+      dettagliSchede.map(
+        (item) => item.workouts.gruppoMuscolare.gruppoMuscolare
+      )
+    ),
+  ];
+  const difficolta = [
+    ...new Set(
+      dettagliSchede.map((item) => item.workouts.difficoltà.toString())
+    ),
+  ];
+
+  const difficoltaColor = (diff) => {
+    if (+diff >= 4) return "danger";
+    if (+diff === 3) return "warning";
+    return "success";
+  };
 
   return (
+    <div className="d-flex flex-column min-vh-100">
     <Container className="my-4">
-      <h3 className="text-center mb-4">Dettagli Scheda di Allenamento</h3>
+      <h3 className="text-center mb-4 fw-bold">
+        Dettagli Scheda di Allenamento
+      </h3>
 
       {/* Filtri */}
-      <Row className="mb-4 g-3 justify-content-center">
-        <Col xs={12} sm={4} md={3}>
-          <Form.Select
-            value={filterCategoria}
-            onChange={(e) => setFilterCategoria(e.target.value)}
-          >
-            <option value="">Tutte le categorie</option>
+      {/* Barra filtri orizzontale */}
+      <div className="filter-bar mb-4 py-2 px-3 rounded-4 shadow-sm d-flex align-items-center overflow-auto">
+        {/* Categoria */}
+        <div className="d-flex align-items-center me-5 flex-shrink-0">
+          <span className="me-2 fw-bold"> Categoria:</span>
+          <div className="d-flex gap-2">
+            <Badge
+              bg={filterCategoria === "" ? "danger" : "light"}
+              text={filterCategoria === "" ? "light" : "dark"}
+              pill
+              className="filter-badge"
+              onClick={() => setFilterCategoria("")}
+            >
+              Tutte
+            </Badge>
             {categorie.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              <Badge
+                key={cat}
+                bg={filterCategoria === cat ? "danger" : "light"}
+                text={filterCategoria === cat ? "light" : "dark"}
+                pill
+                className="filter-badge"
+                onClick={() => setFilterCategoria(cat)}
+              >
+                {cat}
+              </Badge>
             ))}
-          </Form.Select>
-        </Col>
-        <Col xs={12} sm={4} md={3}>
-          <Form.Select
-            value={filterGruppo}
-            onChange={(e) => setFilterGruppo(e.target.value)}
-          >
-            <option value="">Tutti i gruppi muscolari</option>
+          </div>
+        </div>
+
+        {/* Gruppo muscolare */}
+        <div className="d-flex align-items-center me-5 flex-shrink-0">
+          <span className="me-2 fw-bold">Gruppo:</span>
+          <div className="d-flex gap-2">
+            <Badge
+              bg={filterGruppo === "" ? "secondary" : "light"}
+              text={filterGruppo === "" ? "light" : "dark"}
+              pill
+              className="filter-badge"
+              onClick={() => setFilterGruppo("")}
+            >
+              Tutti
+            </Badge>
             {gruppi.map((g) => (
-              <option key={g} value={g}>{g}</option>
+              <Badge
+                key={g}
+                bg={filterGruppo === g ? "secondary" : "light"}
+                text={filterGruppo === g ? "light" : "dark"}
+                pill
+                className="filter-badge"
+                onClick={() => setFilterGruppo(g)}
+              >
+                {g}
+              </Badge>
             ))}
-          </Form.Select>
-        </Col>
-        <Col xs={12} sm={4} md={3}>
-          <Form.Select
-            value={filterDifficolta}
-            onChange={(e) => setFilterDifficolta(e.target.value)}
-          >
-            <option value="">Tutte le difficoltà</option>
+          </div>
+        </div>
+
+        {/* Difficoltà */}
+        <div className="d-flex align-items-center flex-shrink-0">
+          <span className="me-2 fw-bold">Difficoltà:</span>
+          <div className="d-flex gap-2">
+            <Badge
+              bg={filterDifficolta === "" ? "warning" : "light"}
+              text={filterDifficolta === "" ? "dark" : "dark"}
+              pill
+              className="filter-badge"
+              onClick={() => setFilterDifficolta("")}
+            >
+              Tutte
+            </Badge>
             {difficolta.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <Badge
+                key={d}
+                bg={filterDifficolta === d ? difficoltaColor(d) : "light"}
+                text={filterDifficolta === d ? "light" : "dark"}
+                pill
+                className="filter-badge"
+                onClick={() => setFilterDifficolta(d)}
+              >
+                {d}
+              </Badge>
             ))}
-          </Form.Select>
-        </Col>
-      </Row>
+          </div>
+        </div>
+      </div>
 
       {/* Griglia Card */}
       <Row xs={1} sm={2} md={3} lg={4} className="g-4">
         {filteredSchede.map((value) => (
           <Col key={value.workoutLogDetailId}>
-            <Card className="h-100 shadow-sm">
+            <Card className="h-100 shadow-sm border-0 rounded-4 overflow-hidden card-hover position-relative">
+              {/* X in alto a destra */}
+              <Button
+                variant="gray"
+                size="sm"
+                className="position-absolute top-0 end-0 m-2 p-1 rounded-circle d-flex align-items-center justify-content-center"
+                onClick={() => handleShowModal(value.workoutLogDetailId)}
+              >
+                <FaTimes />
+              </Button>
+
               <Card.Img
                 variant="top"
                 src={`../src/images/allImages/${value.workouts.nome.toLowerCase()}.png`}
                 alt={value.workouts.nome}
-                style={{ height: "180px", objectFit: "cover" }}
+                style={{ height: "180px", objectFit: "contain" }}
               />
               <Card.Body className="d-flex flex-column">
-                <Card.Title className="text-center">{value.workouts.nome}</Card.Title>
+                <Card.Title className="text-center fw-bold">
+                  {value.workouts.nome}
+                </Card.Title>
                 <div className="mb-2 text-center">
                   <Badge bg="primary" className="me-1">
                     {value.workouts.categorie.descrizione}
                   </Badge>
-                  <Badge bg="secondary">{value.workouts.gruppoMuscolare.gruppoMuscolare}</Badge>
+                  <Badge bg="secondary" className="me-1">
+                    {value.workouts.gruppoMuscolare.gruppoMuscolare}
+                  </Badge>
+                  <Badge bg={difficoltaColor(value.workouts.difficoltà)}>
+                    {value.workouts.difficoltà}/5
+                  </Badge>
                 </div>
                 <div className="mb-2">
-                  <strong>Difficoltà:</strong> {value.workouts.difficoltà}/5 <br />
-                  <strong>Sets:</strong> {value.sets} <strong>Ripetizioni:</strong> {value.ripetizioni} <br />
-                  <strong>Peso:</strong> {value.peso}kg <strong>Recover:</strong> {value.recover}' <br />
-                  <strong>Tempo:</strong> {value.tempo}'' <br />
-                  <strong>Note:</strong> {value.note || "-"}
+                  <p className="mb-1">
+                    <FaDumbbell /> Sets: {value.sets}, Ripetizioni:{" "}
+                    {value.ripetizioni}
+                  </p>
+                  <p className="mb-1">
+                    <FaWeightHanging /> Peso: {value.peso}kg, <FaRedo />{" "}
+                    Recover: {value.recover}'
+                  </p>
+                  <p className="mb-1">
+                    <FaClock /> Tempo: {value.tempo}''
+                  </p>
+                  <p className="mb-1">Note: {value.note || "-"}</p>
                 </div>
-                <Button
-                  variant="outline-danger"
-                  onClick={() => handleShowModal(value.workoutLogDetailId)}
-                  className="mt-auto"
-                >
-                  Elimina
-                </Button>
               </Card.Body>
             </Card>
           </Col>
@@ -151,7 +256,7 @@ export default function DettagliScheda() {
 
       <div className="d-flex justify-content-center mt-4">
         <Button variant="danger" onClick={handlePrint}>
-          Stampa la scheda
+          🖨️ Stampa la scheda
         </Button>
       </div>
 
@@ -165,11 +270,28 @@ export default function DettagliScheda() {
           <Button variant="secondary" onClick={handleClose}>
             Annulla
           </Button>
-          <Button variant="danger" onClick={() => handleEliminaClick(selectedId)}>
+          <Button
+            variant="danger"
+            onClick={() => handleEliminaClick(selectedId)}
+          >
             Elimina
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* CSS extra */}
+      <style>
+        {`
+          .card-hover {
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          .card-hover:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+          }
+        `}
+      </style>
     </Container>
+    </div>
   );
 }

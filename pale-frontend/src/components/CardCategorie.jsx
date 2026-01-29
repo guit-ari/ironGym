@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Button } from "react-bootstrap";
+import { Row, Col, Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 export default function CardCategorie() {
@@ -8,7 +8,9 @@ export default function CardCategorie() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const resp = await fetch("http://localhost:8080/api/workoutCategory/getAll");
+        const resp = await fetch(
+          "http://localhost:8080/api/workoutCategory/getAll"
+        );
         const data = await resp.json();
         setCategories(data);
       } catch (err) {
@@ -32,9 +34,15 @@ export default function CardCategorie() {
           <Card
             key={index}
             className="shadow-sm mx-auto text-center"
-            style={{ width: "18rem", cursor: "pointer", transition: "transform 0.2s" }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+            style={{
+              width: "18rem",
+              cursor: "pointer",
+              transition: "transform 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.03)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <Link
               to={`/dettaglicategoria/?categoryId=${value.categoryId}`}
@@ -43,15 +51,12 @@ export default function CardCategorie() {
               <Card.Img
                 variant="top"
                 src={`../src/images/allImages/${value.descrizione.toLowerCase()}.png`}
-                style={{ height: "180px", objectFit: "cover" }}
+                style={{ height: "180px", objectFit: "contain" }}
               />
               <Card.Body>
-                <Card.Title className="text-danger fw-bold">
+                <Card.Title className="text-secondary fw-bold">
                   {value.descrizione}
                 </Card.Title>
-                <Button variant="outline-danger" className="mt-2">
-                  Visualizza
-                </Button>
               </Card.Body>
             </Link>
           </Card>
